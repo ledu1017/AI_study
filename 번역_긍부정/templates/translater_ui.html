@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Bot</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 70vh;
+            flex-direction: column;
+        }
+
+        #chat_container {
+            background-color: #f0f0f0;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            max-width: 70%;
+            overflow-y: auto;
+            height: 800px;
+            width: 500px;
+            white-space: pre-line;
+        }
+
+        .bot-message {
+            color: blue;
+        }
+
+        .user-message {
+            color: green;
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat Bot</h1>
+    <div id="chat_container"></div>
+    <form onsubmit="sendUserInput(event)">
+        <input type="text" id="user-input" placeholder="메시지 입력..." autofocus>
+        <button type="submit">전송</button>
+        <input type="text" id="score" value="0" readonly>
+    </form>
+    
+    <script>
+        let score = 0;
+        const chatContainer = document.getElementById('chat_container');
+        const scoreInput = document.getElementById('score');
+        
+        function showBotMessage(message) {
+            const messageElement = document.createElement('p');
+            messageElement.classList.add('bot-message');
+            messageElement.innerHTML = message;
+            chatContainer.appendChild(messageElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function sendUserInput(event) {
+            event.preventDefault();
+            const userInput = document.getElementById('user-input');
+            const input = userInput.value.trim();
+            if (input !== '') {
+                showUserMessage(input);
+                sendUserInputToServer(input);
+                userInput.value = '';
+            }
+        }
+        
+        function showUserMessage(message) {
+            const messageContainer = document.createElement('div');
+            messageContainer.classList.add('user-message');
+            const messageElement = document.createElement('p');
+            messageElement.textContent = message;
+            messageContainer.appendChild(messageElement);
+            chatContainer.appendChild(messageContainer);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function updateScore(scoreValue) {
+            score += scoreValue;
+            scoreInput.value = score;
+        }
+        
+        function sendUserInputToServer(input) {
+            fetch(`/chat/${encodeURIComponent(input)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const sentence = JSON.stringify(data.sentence.sentence);
+                    const scoreValue = JSON.stringify(data.sentence.score);
+                    showBotMessage(sentence);
+                    updateScore(parseInt(scoreValue));
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
