@@ -1,0 +1,160 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load("current", {packages:["corechart"]});
+      google.charts.setOnLoadCallback(drawCharts);
+      
+      function drawCharts() {
+        // AJAX 요청 생성
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'movie_keyword.php', true);
+
+        // 요청 완료 후 처리할 콜백 함수
+        xhr.onload = function() {
+          if (xhr.status === 200) {
+            var jsonData = JSON.parse(xhr.responseText);
+            
+            // 도넛 차트 데이터
+            var donutData = new google.visualization.DataTable();
+            donutData.addColumn('string', 'Tags');
+            donutData.addColumn('number', 'Count');
+            donutData.addColumn({ type: 'string', role: 'tooltip' });
+
+            // 열차트 데이터
+            var barData = new google.visualization.DataTable();
+            barData.addColumn('string', 'Tags');
+            barData.addColumn('number', 'Count');
+
+            for (var i = 0; i < jsonData.length; i++) {
+              var tag = jsonData[i].keyword;
+              var count = parseInt(jsonData[i].keyword_count);
+              donutData.addRow([tag, count, count.toString()]);
+              barData.addRow([tag, count]);
+            }
+
+            // 도넛 차트 옵션
+            var donutOptions = {
+              title: 'Top 10 Tags (Donut Chart)',
+              pieHole: 0.4
+            };
+
+            // 열차트 옵션
+            var barOptions = {
+              title: 'Top 10 Tags (Bar Chart)'
+            };
+
+            // 도넛 차트 생성 및 그리기
+            var donutChart = new google.visualization.PieChart(document.getElementById('donutchart'));
+            donutChart.draw(donutData, donutOptions);
+
+            // 열차트 생성 및 그리기
+            var barChart = new google.visualization.ColumnChart(document.getElementById('barchart'));
+            barChart.draw(barData, barOptions);
+          }
+        };
+
+        // 요청 전송
+        xhr.send();
+      }
+
+      function toggleSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('open');
+      }
+
+      function closeSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        sidebar.classList.remove('open');
+      }
+    </script>
+    <style>
+      body {
+        display: flex;
+        margin: 0;
+        padding: 0;
+      }
+
+      #sidebar {
+        width: 300px;
+        height: 100vh;
+        background-color: #E6F0FF;
+        padding: 20px;
+        transition: transform 0.3s ease-in-out;
+        transform: translateX(-100%);
+      }
+
+      #sidebar.open {
+        transform: translateX(0);
+      }
+
+      #content {
+        flex: 1;
+        padding: 20px;
+      }
+
+      #chartContainer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 2cm;
+      }
+      
+      #chartContainer .chart {
+        width: 500px;
+        height: 400px;
+      }
+
+      #title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 2cm;
+      }
+
+      #sidebarToggle {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background-color: #E6F0FF;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+      }
+
+      #closeSidebar {
+        background-color: #E6F0FF;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+
+      #movieTitleInput {
+        margin-top: 20px;
+      }
+
+      #searchButton {
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="sidebarToggle" onclick="toggleSidebar()">Toggle Sidebar</button>
+    <div id="sidebar">
+      <button id="closeSidebar" onclick="closeSidebar()">Close Sidebar</button>
+      <input type="text" id="movieTitleInput" placeholder="영화 제목">
+      <button id="searchButton">검색</button>
+    </div>
+    <div id="content">
+      <div id="title">영화리뷰 키워드(엘리멘탈)</div>
+      <div id="chartContainer">
+        <div id="barchart" class="chart"></div>
+        <div id="donutchart" class="chart"></div>
+      </div>
+    </div>
+  </body>
+</html>
