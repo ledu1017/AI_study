@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <style>
+        .container {
+            text-align: center;
+            margin-top: 200px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Login</h1>
+        <input type="text" id="username" placeholder="Username">
+        <br>
+        <button onclick="login()">Submit</button>
+        <div id="error-message" style="color: red; margin-top: 10px;"></div>
+    </div>
+
+    <script>
+        function login() {
+            var username = document.getElementById('username').value;
+            if (username) {
+                // AJAX 요청 보내기
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function() {
+                    if (this.readyState === 4 && this.status === 200) {
+                        var response = this.responseText;
+                        if (response === '1') {
+                            window.location.href = '/start_game';
+                        } else if (response === '0') {
+                            document.getElementById('error-message').textContent = '존재하지 않는 이름입니다.';
+                        } else {
+                            document.getElementById('error-message').textContent = 'Invalid response';
+                        }
+                    }
+                };
+                xmlhttp.open('POST', 'http://localhost/login.php', true);
+                xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                xmlhttp.send('username=' + username);
+            } else {
+                document.getElementById('error-message').textContent = 'Please enter a username';
+            }
+        }
+    </script>
+</body>
+</html>

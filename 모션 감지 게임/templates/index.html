@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Motion Game</title>
+    <style>
+        #container {
+            display: flex;
+        }
+
+        #video {
+            max-width: 800px;
+            max-height: 600px;
+            width: 50%;
+            height: auto;
+        }
+
+        #ranking {
+            width: 50%;
+            height: auto;
+            margin-left: 20px;
+        }
+
+        #ranking h2 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Motion Game</h1>
+    <div id="container">
+        <img id="video" src="{{ url_for('video_feed') }}" alt="Video Stream">
+        <div id="ranking">
+            <h2>Ranking</h2>
+            <ul id="scoreList">
+                {% for ranking in rankings %}
+                <li>{{ ranking.username }} - {{ ranking.score }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // AJAX 요청 생성
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                // JSON 응답을 파싱하여 처리
+                var rankings = JSON.parse(this.responseText);
+                var scoreList = document.getElementById('scoreList');
+                scoreList.innerHTML = ''; // 기존 목록 초기화
+
+                // 가져온 랭킹 데이터를 목록에 추가
+                for (var i = 0; i < rankings.length; i++) {
+                    var listItem = document.createElement('li');
+                    listItem.innerText = rankings[i].username + ' - ' + rankings[i].score;
+                    scoreList.appendChild(listItem);
+                }
+            }
+        };
+        // ranking.php로 GET 요청 보내기
+        xmlhttp.open('GET', 'http://localhost/ranking.php', true);
+        xmlhttp.send();
+    </script>
+</body>
+</html>
