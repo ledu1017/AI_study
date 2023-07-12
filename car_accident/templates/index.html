@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>사진 업로드 페이지</title>
+</head>
+<body>
+  <h1>사진 업로드</h1>
+
+  <form action="upload.php" method="post" enctype="multipart/form-data">
+    <input type="file" name="photo" accept="image/*">
+    <input type="submit" value="업로드">
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    const form = document.querySelector('form');
+    const resultDiv = document.getElementById('result');
+  
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+  
+      const formData = new FormData(form);
+      const request = new XMLHttpRequest();
+  
+      request.open('POST', 'upload.php');
+      request.onload = function () {
+        if (request.status === 200) {
+          const response = JSON.parse(request.responseText);
+          if (response.success) {
+            resultDiv.innerHTML = '파일이 성공적으로 업로드되었습니다.';
+          } else {
+            resultDiv.innerHTML = '파일 업로드에 실패했습니다. 오류: ' + response.error;
+          }
+        } else {
+          resultDiv.innerHTML = '파일 업로드에 실패했습니다. 오류 코드: ' + request.status;
+        }
+      };
+  
+      request.send(formData);
+    });
+  </script>
+</body>
+</html>
